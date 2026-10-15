@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Marketplace device dashboard</title>
+  <style>
+    :root { color-scheme: light; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: #f3f5f4; color: #18201c; }
+    body { margin: 0; }
+    header { padding: 22px 28px; background: #17231d; color: #f7faf8; border-bottom: 4px solid #35b36f; }
+    h1 { margin: 0; font: 600 20px/1.3 system-ui, sans-serif; letter-spacing: 0; }
+    header p { margin: 6px 0 0; color: #b9c8c0; font-size: 13px; }
+    main { max-width: 980px; margin: 0 auto; padding: 28px; display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; }
+    section { border: 1px solid #c9d1cd; border-radius: 6px; background: #fff; overflow: hidden; }
+    h2 { margin: 0; padding: 12px 14px; border-bottom: 1px solid #d9dfdc; font-size: 13px; text-transform: uppercase; letter-spacing: 0; }
+    pre { min-height: 240px; margin: 0; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; line-height: 1.6; }
+    #state { min-height: 240px; padding: 14px; font-size: 13px; }
+    .connected { color: #08783c; }
+    @media (max-width: 700px) { main { grid-template-columns: 1fr; padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header><h1>Marketplace device status</h1><p id="connection">connecting to /stream</p></header>
+  <main>
+    <section><h2>Device updates</h2><pre id="devices">waiting for a status update</pre></section>
+    <section><h2>Metric snapshot</h2><div id="state">waiting for the next query</div></section>
+  </main>
+  <script>
+    const stream = new EventSource('/stream');
+    const connection = document.querySelector('#connection');
+    stream.onopen = () => { connection.textContent = 'live · /stream'; connection.className = 'connected'; };
+    stream.addEventListener('device.status', event => { document.querySelector('#devices').textContent = JSON.stringify(JSON.parse(event.data), null, 2); });
+    stream.addEventListener('metrics', event => { document.querySelector('#state').textContent = JSON.stringify(JSON.parse(event.data), null, 2); });
+  </script>
+</body>
+</html>
